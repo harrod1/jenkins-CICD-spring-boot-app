@@ -66,7 +66,9 @@ pipeline {
            }
           agent { 
                     docker { 
-                            image 'jenkins/jnlp-agent-terraform' 
+                           image 'hashicorp/terraform:latest'
+                           args '--entrypoint=""'
+                           reuseNode true
                     } 
                 }     
             steps {
