@@ -60,7 +60,7 @@ pipeline {
                 """
             }
         }
-        stage ('IAC Staging  on aws') { 
+        stage ('IAC Staging  on aws - Plan') { 
           when {
             expression { GIT_BRANCH == 'origin/iac' }
            }
@@ -84,7 +84,7 @@ pipeline {
         }
     
     
-        stage ('IAC Staging  on aws') { 
+        stage ('IAC Staging  on aws - Apply') { 
             when {
                 expression { GIT_BRANCH == 'origin/deployment' }
             }
