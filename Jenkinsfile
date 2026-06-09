@@ -66,8 +66,8 @@ pipeline {
            }
           agent { 
                     docker { 
-                           image 'hashicorp/terraform:latest'
-                           args '--entrypoint=""'
+                           image 'alpine:3.20'
+                           args '-u root --entrypoint=""'
                            reuseNode true
                     } 
                 }     
@@ -75,10 +75,11 @@ pipeline {
               withCredentials([aws(credentialsId: 'AwsCredentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                 dir('iac/staging') {
                 sh '''
-                    terraform init
-                    terraform plan
-                    terraform apply -auto-approve
-                    sleep 60
+                     apk add --no-cache terraform
+                     terraform init
+                     terraform destroy --auto-approve
+                     terraform apply --auto-approve
+                     sleep 60
                 '''
                 }
               }
@@ -92,15 +93,16 @@ pipeline {
             }
             agent { 
                 docker { 
-                    image 'hashicorp/terraform:latest'
-                    args '--entrypoint=""'
-                     reuseNode true
+                    image 'alpine:3.20'
+                    args '-u root --entrypoint=""'
+                    reuseNode true
                 } 
             }     
             steps {
               withCredentials([aws(credentialsId: 'AwsCredentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                 dir('terraform/staging') {
                     sh '''
+                        apk add --no-cache terraform
                         terraform init
                         terraform destroy --auto-approve
                         terraform apply --auto-approve
@@ -151,7 +153,9 @@ pipeline {
             }        
             agent { 
                 docker { 
-                    image 'jenkins/jnlp-agent-terraform'  
+                     image 'alpine:3.20'
+                     args '-u root --entrypoint=""'
+                     reuseNode true  
                 } 
             }
             steps {
@@ -161,8 +165,10 @@ pipeline {
                 withCredentials([aws(credentialsId: 'AwsCredentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     dir('terraform/staging') {
                         sh '''
+                            apk add --no-cache terraform
                             terraform init
                             terraform destroy --auto-approve
+                            sleep 60
                         '''
                     }
                 }
@@ -176,8 +182,8 @@ pipeline {
              
             agent { 
                 docker { 
-                    image 'hashicorp/terraform:latest'
-                    args '--entrypoint=""'
+                    image 'alpine:3.20'
+                    args '-u root --entrypoint=""'
                     reuseNode true
                 } 
             }
@@ -185,6 +191,7 @@ pipeline {
               withCredentials([aws(credentialsId: 'AwsCredentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                 dir ('terraform/prod') {
                     sh '''
+                        apk add --no-cache terraform
                         terraform init
                         terraform destroy --auto-approve
                         terraform apply --auto-approve 
@@ -235,9 +242,9 @@ pipeline {
             }        
             agent { 
                 docker { 
-                    image 'hashicorp/terraform:latest'
-                    args '--entrypoint=""'
-                    reuseNode true 
+                    image 'alpine:3.20'
+                    args '-u root --entrypoint=""'
+                    reuseNode true
                 } 
             }
             steps {
