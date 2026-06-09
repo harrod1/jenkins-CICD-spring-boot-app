@@ -119,12 +119,14 @@ pipeline {
                 }
             }
             steps {
+                sshagent(credentials: ['SSH_AUTH_SERVER']) {
                 dir('ansible') {
                     sh '''
                         ansible-galaxy collection install community.docker
                         ansible-playbook -i hosts.yml playbook.yml --extra-vars deploy_host="staging"
                         sleep 60
                     '''
+                    }
                 }
             }
         }
@@ -201,12 +203,14 @@ pipeline {
                 }
             }
             steps {
+                sshagent(credentials: ['SSH_AUTH_SERVER']) {
                 dir('ansible') {
                     sh '''
                         ansible-galaxy collection install community.docker
                         ansible-playbook -i hosts.yml playbook.yml --extra-vars deploy_host="prod"
                         sleep 60
                     '''
+                    }
                 }
             }
         }
