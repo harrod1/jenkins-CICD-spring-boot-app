@@ -1,3 +1,3 @@
-FROM docker:20
-RUN  apk add --no-cache git
-RUN  apk add --no-cache maven
+FROM docker:27-cli
+RUN apk add --no-cache git
+RUN apk add --no-cache maven
