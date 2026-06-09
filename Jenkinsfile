@@ -16,24 +16,19 @@ pipeline {
         IMAGE_TAG = 'latest'
     }
 
-    stages {
+   stages {
 
         stage('Test') {
             steps {
-                
-                sh '''
-                    java -version
-                    mvn -version
-                    mvn clean test
-                '''
+                sh 'mvn clean test'
             }
             post {
                 always {
-                     junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
-
+    
         stage('SonarCloud analysis') {
             steps {
                 withSonarQubeEnv('SonarCloudServer') {
@@ -41,7 +36,7 @@ pipeline {
                 }
             }
         }
-
+    
         stage('Quality Gate') {
             steps {
                 timeout(time: 60, unit: 'SECONDS') {
@@ -49,13 +44,13 @@ pipeline {
                 }
             }
         }
-
+    
         stage('Package') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
-
+    
         stage('Build and push IMAGE to docker registry') {
             steps {
                 sh """
@@ -65,7 +60,7 @@ pipeline {
                 """
             }
         }
-        stage ('IAC Staging  on aws Plan') { 
+        stage ('IAC Staging  on aws') { 
           when {
             expression { GIT_BRANCH == 'origin/iac' }
            }
@@ -87,9 +82,9 @@ pipeline {
               }
             }
         }
-
-
-        stage ('IAC Staging  on aws - Apply') { 
+    
+    
+        stage ('IAC Staging  on aws') { 
             when {
                 expression { GIT_BRANCH == 'origin/deployment' }
             }
@@ -111,8 +106,8 @@ pipeline {
               }
             }
         }
-
-
+    
+    
         stage ('Deploy in staging') {
             when {
                 expression { GIT_BRANCH == 'origin/deployment' }
@@ -124,18 +119,16 @@ pipeline {
                 }
             }
             steps {
-                sshagent(credentials: ['SSH_AUTH_SERVER']) {
                 dir('ansible') {
                     sh '''
                         ansible-galaxy collection install community.docker
                         ansible-playbook -i hosts.yml playbook.yml --extra-vars deploy_host="staging"
                         sleep 60
                     '''
-                    }
                 }
             }
         }
-
+    
         stage('Test Staging') {
             when {
                 expression { GIT_BRANCH == 'origin/deployment' }
@@ -147,7 +140,7 @@ pipeline {
                 '''
             }
         }
-
+    
         stage('Destroy staging') {  
             when {
                 expression { GIT_BRANCH == 'origin/deployment' }
@@ -171,7 +164,7 @@ pipeline {
                 }
             }
         }
-
+    
         stage ('IAC Prod on AWS'){
             when {
                 expression { GIT_BRANCH == 'origin/deployment' }
@@ -196,7 +189,7 @@ pipeline {
         
             }
         } 
-
+    
         stage ('Deploy in prod') {
             when {
                 expression { GIT_BRANCH == 'origin/deployment' }
@@ -208,18 +201,16 @@ pipeline {
                 }
             }
             steps {
-                sshagent(credentials: ['SSH_AUTH_SERVER']) {
                 dir('ansible') {
                     sh '''
                         ansible-galaxy collection install community.docker
                         ansible-playbook -i hosts.yml playbook.yml --extra-vars deploy_host="prod"
                         sleep 60
                     '''
-                    }
                 }
             }
         }
-
+    
         stage('Test Prod') {
             when {
                 expression { GIT_BRANCH == 'origin/deployment' }
@@ -231,7 +222,7 @@ pipeline {
                 '''
             }
         }
-
+    
         stage('Destroy prod') {  
             when {
                 expression { GIT_BRANCH == 'origin/deployment' }
@@ -256,5 +247,5 @@ pipeline {
             }
         }
     }
-
-}
+    
+    }
