@@ -20,7 +20,12 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'mvn clean test'
+                
+                sh '''
+                    java -version
+                    mvn -version
+                    mvn clean test
+                '''
             }
             post {
                 always {
