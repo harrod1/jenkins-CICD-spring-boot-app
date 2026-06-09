@@ -10,8 +10,8 @@ pipeline {
         DOCKERHUB_AUTH = credentials('DockerHubCredentials')
         MYSQL_AUTH = credentials('MYSQL_AUTH')
         SSH_AUTH_SERVER = credentials('SSH_AUTH_SERVER')
-        HOSTNAME_DEPLOY_PROD = "54.208.104.243"
         HOSTNAME_DEPLOY_STAGING = "13.221.116.71"
+        HOSTNAME_DEPLOY_PROD = "54.208.104.243"
         IMAGE_NAME = 'paymybuddy'
         IMAGE_TAG = 'latest'
     }
